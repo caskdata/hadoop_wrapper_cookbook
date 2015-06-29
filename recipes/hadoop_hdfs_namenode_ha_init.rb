@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: hadoop_wrapper
-# Recipe:: ha_init
+# Recipe:: hadoop_hdfs_namenode_ha_init
 #
 # Copyright © 2015 Cask Data, Inc.
 #
