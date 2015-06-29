@@ -1,19 +1,47 @@
-# variables
+### variables
 jmx_base = '-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false'
 
-# Java
+### Java
 default['java']['install_flavor'] = 'oracle'
 default['java']['jdk_version'] = 7
 default['java']['oracle']['accept_oracle_download_terms'] = true
 
-# Hadoop
-# core-site.xml
+### Hadoop
+
+## core-site.xml
 default['hadoop']['core_site']['hadoop.tmp.dir'] = '/hadoop'
-# hdfs-site.xml
+## hdfs-site.xml
 default['hadoop']['hdfs_site']['dfs.datanode.max.transfer.threads'] = '4096'
-# mapred-site.xml
+## hdfs-site HA
+# Configure dfs.nameservices
+default['hadoop']['hdfs_site']['dfs.nameservices'] = 'hacluster'
+# Configure dfs.ha.namenodes.[nameservice ID]
+default['hadoop']['hdfs_site']['dfs.ha.namenodes.hacluster'] = 'nn1,nn2'
+# Configure dfs.namenode.rpc-address.[nameservice ID]
+default['hadoop']['hdfs_site']['dfs.namenode.rpc-address.hacluster.nn1'] = 'nn1_fqdn:8020'
+default['hadoop']['hdfs_site']['dfs.namenode.rpc-address.hacluster.nn2'] = 'nn2_fqdn:8020'
+# Configure dfs.namenode.http-address.[nameservice ID]
+default['hadoop']['hdfs_site']['dfs.namenode.http-address.hacluster.nn1'] = 'nn1_fqdn:50070'
+default['hadoop']['hdfs_site']['dfs.namenode.http-address.hacluster.nn2'] = 'nn2_fqdn:50070'
+# Configure dfs.namenode.shared.edits.dir
+default['hadoop']['hdfs_site']['dfs.namenode.shared.edits.dir'] = 'qjournal://jn1_fqdn:8485;jn2_fqdn:8485;jn3_fqdn:8485/hacluster'
+# Configure dfs.journalnode.edits.dir
+default['hadoop']['hdfs_site']['dfs.journalnode.edits.dir'] = '/data/1/dfs/jn'
+# Client Failover Configuration
+default['hadoop']['hdfs_site']['dfs.client.failover.proxy.provider.hacluster'] = 'org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider'
+# Fencing Configuration
+default['hadoop']['hdfs_site']['dfs.ha.fencing.methods'] = 'sshfence'
+default['hadoop']['hdfs_site']['dfs.ha.fencing.ssh.private-key-files'] = '/home/hdfs/.ssh/id_rsa'
+# Configure Automatic Failover
+default['hadoop']['hdfs_site']['dfs.ha.automatic-failover.enabled'] = 'true'
+default['hadoop']['core_site']['ha.zookeeper.quorum'] = 'zk1_fqdn:2181,zk2_fqdn:2181,zk3_fqdn:2181'
+# Securing access to ZooKeeper
+default['hadoop']['core_site']['ha.zookeeper.auth'] = '@/path/to/zk-auth.txt'
+default['hadoop']['core_site']['ha.zookeeper.acl'] = '@/path/to/zk-acl.txt'
+
+## mapred-site.xml
 default['hadoop']['mapred_site']['mapreduce.framework.name'] = 'yarn'
-# yarn-site.xml
+## yarn-site.xml
 default['hadoop']['yarn_site']['yarn.log-aggregation-enable'] = 'true'
 default['hadoop']['yarn_site']['yarn.scheduler.minimum-allocation-mb'] = '512'
 default['hadoop']['yarn_site']['yarn.nodemanager.resourcemanager.connect.wait.secs'] = '-1'
@@ -32,7 +60,7 @@ unless node['hadoop']['yarn_site'].key?('yarn.nodemanager.resource.memory-mb')
   default['hadoop']['yarn_site']['yarn.nodemanager.resource.memory-mb'] = (mem * pct).to_i
 end
 
-# hadoop-metrics.properties
+## hadoop-metrics.properties
 default['hadoop']['hadoop_metrics']['dfs.class'] = 'org.apache.hadoop.metrics.spi.NullContextWithUpdateThread'
 default['hadoop']['hadoop_metrics']['dfs.period'] = '60'
 default['hadoop']['hadoop_metrics']['mapred.class'] = 'org.apache.hadoop.metrics.spi.NullContextWithUpdateThread'
@@ -41,18 +69,18 @@ default['hadoop']['hadoop_metrics']['rpc.class'] = 'org.apache.hadoop.metrics.sp
 default['hadoop']['hadoop_metrics']['rpc.period'] = '60'
 default['hadoop']['hadoop_metrics']['ugi.class'] = 'org.apache.hadoop.metrics.spi.NullContextWithUpdateThread'
 default['hadoop']['hadoop_metrics']['ugi.period'] = '60'
-# hadoop-env.sh
+## hadoop-env.sh
 # Enable JMX
 default['hadoop']['hadoop_env']['hadoop_jmx_base'] = jmx_base
 default['hadoop']['hadoop_env']['hadoop_namenode_opts'] = '$HADOOP_JMX_BASE -Dcom.sun.management.jmxremote.port=8004'
 default['hadoop']['hadoop_env']['hadoop_secondarynamenode_opts'] = '$HADOOP_JMX_BASE -Dcom.sun.management.jmxremote.port=8005'
 default['hadoop']['hadoop_env']['hadoop_datanode_opts'] = '$HADOOP_JMX_BASE -Dcom.sun.management.jmxremote.port=8006'
-# yarn-env.sh
+## yarn-env.sh
 default['hadoop']['yarn_env']['yarn_opts'] = jmx_base
 default['hadoop']['yarn_env']['yarn_resourcemanager_opts'] = '$YARN_RESOURCEMANAGER_OPTS -Dcom.sun.management.jmxremote.port=8008'
 default['hadoop']['yarn_env']['yarn_nodemanager_opts'] = '$YARN_NODEMANAGER_OPTS -Dcom.sun.management.jmxremote.port=8009'
 
-# HBase
+### HBase
 # hbase-site.xml configs
 default['hbase']['hbase_site']['hbase.cluster.distributed'] = 'true'
 default['hbase']['hbase_site']['hbase.defaults.for.version.skip'] = 'false'
@@ -67,7 +95,7 @@ default['hbase']['hbase_env']['hbase_master_opts'] = '$COMMON_GC_OPTS $HBASE_MAS
 default['hbase']['hbase_env']['server_gc_opts'] = '-Xloggc:$HBASE_LOG_DIR/gc-master.log'
 default['hbase']['hbase_env']['hbase_regionserver_opts'] = '$COMMON_GC_OPTS -Xloggc:$HBASE_LOG_DIR/gc-regionserver.log $HBASE_REGIONSERVER_OPTS $HBASE_REGIONSERVER_HEAP $HBASE_JMX_BASE -Dcom.sun.management.jmxremote.port=10102'
 
-# ZooKeeper
+### ZooKeeper
 # zoo.cfg
 default['zookeeper']['zoocfg']['autopurge.snapRetainCount'] = '7'
 default['zookeeper']['zoocfg']['autopurge.purgeInterval'] = '24'
