@@ -32,3 +32,10 @@ ruby_block 'initaction-format-namenode' do
   ### TODO: this should check all dfs name dirs, not just the first
   # only_if { (Dir.entries("#{node['hadoop']['hdfs_site']['dfs.name.dir'].split(',').first}") - %w{ . .. }).empty? }
 end
+
+ruby_block 'master-namenode-init' do
+  block do
+    resources(:execute => 'hdfs-namenode-initialize-sharededits').run_action(:run)
+  end
+  only_if { node['hadoop']['hdfs_site']['dfs.nameservices'] && node['hadoop']['hdfs_site']["dfs.ha.namenodes.#{clustername}"] && node['hadoop']['hdfs_site']["dfs.ha.namenodes.#{clustername}"].split(',')[0] == node['fqdn']
+end
