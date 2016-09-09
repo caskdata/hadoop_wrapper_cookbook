@@ -12,4 +12,5 @@ if RUBY_VERSION.to_f < 2.0
   cookbook 'ohai', '< 4.0'
 end
 
+cookbook 'hadoop', git: 'https://github.com/caskdata/hadoop_cookbook.git', branch: 'master'
 metadata

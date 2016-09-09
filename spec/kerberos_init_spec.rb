@@ -24,7 +24,7 @@ describe 'hadoop_wrapper::kerberos_init' do
       end.converge(described_recipe)
     end
 
-    %w(hbase hive zookeeper).each do |user|
+    %w(hbase hive spark zookeeper).each do |user|
       it "creates #{user} user" do
         expect(chef_run).to create_user(user)
       end
