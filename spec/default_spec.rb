@@ -11,8 +11,8 @@ describe 'hadoop_wrapper::default' do
       end.converge(described_recipe)
     end
 
-    it 'includes kerberos_init recipe' do
-      expect(chef_run).to include_recipe('hadoop_wrapper::kerberos_init')
+    it 'includes java recipe' do
+      expect(chef_run).to include_recipe('java::default')
     end
   end
 end
