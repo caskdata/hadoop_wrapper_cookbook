@@ -16,9 +16,5 @@ describe 'hadoop_wrapper::hive_metastore_db_init' do
         stub_command(/test -L /).and_return(false)
       end.converge(described_recipe)
     end
-
-    it 'runs execute[mysql-import-hive-schema] block' do
-      expect(chef_run).to run_execute('mysql-import-hive-schema')
-    end
   end
 end
