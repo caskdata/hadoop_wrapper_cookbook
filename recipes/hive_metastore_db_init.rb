@@ -66,14 +66,15 @@ if node['hive'].key?('hive_site') && node['hive']['hive_site'].key?('javax.jdo.o
       privileges [:all]
       action :grant
     end
-    execute 'mysql-import-hive-schema' do
+    execute 'mysql-import-hive-schema' do # ~FC009
       command <<-EOF
-        mysql --batch -D#{db_name} -p#{node['mysql']['server_root_password']} < $(ls -1 hive-schema-* | sort -n | tail -n 1)
+        mysql --batch -D#{db_name} < $(ls -1 hive-schema-* | sort -n | tail -n 1)
         EOF
-      sensitive true # keep password hidden
+      sensitive true
       user 'root'
       action :run
       cwd "#{sql_dir}/mysql"
+      environment('MYSQL_PWD' => node['mysql']['server_root_password'])
     end
     hive_uris.each do |hive_host|
       mysql_database_user "#{db_user}-#{hive_host}" do
@@ -104,11 +105,11 @@ if node['hive'].key?('hive_site') && node['hive']['hive_site'].key?('javax.jdo.o
       password db_pass
       action :create
     end
-    execute 'postgresql-import-hive-schema' do
+    execute 'postgresql-import-hive-schema' do # ~FC009
       command <<-EOF
         psql #{db_name} < $(ls -1 hive-schema-* | sort -n | tail -n 1)
         EOF
-      sensitive true # keep password hidden
+      sensitive true
       user 'postgres'
       action :run
       cwd "#{sql_dir}/postgres"

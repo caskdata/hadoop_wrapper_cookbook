@@ -13,6 +13,7 @@ describe 'hadoop_wrapper::hive_metastore_db_init' do
         stub_command(%r{test -e /tmp/jce(.+)/}).and_return(false)
         stub_command(%r{diff -q /tmp/jce(.+)/}).and_return(false)
         stub_command(%r{/sys/kernel/mm/(.*)transparent_hugepage/defrag}).and_return(false)
+        stub_command(/test -L /).and_return(false)
       end.converge(described_recipe)
     end
 
