@@ -44,9 +44,9 @@ if node['hive'].key?('hive_site') && node['hive']['hive_site'].key?('javax.jdo.o
   when 'mysql'
     include_recipe 'database::mysql'
     mysql_connection_info = {
-      :host     => 'localhost',
-      :username => 'root',
-      :password => node['mysql']['server_root_password']
+      host: 'localhost',
+      username: 'root',
+      password: node['mysql']['server_root_password']
     }
     mysql_database db_name do
       connection mysql_connection_info
@@ -91,10 +91,10 @@ if node['hive'].key?('hive_site') && node['hive']['hive_site'].key?('javax.jdo.o
   when 'postgresql'
     include_recipe 'database::postgresql'
     postgresql_connection_info = {
-      :host     => '127.0.0.1',
-      :port     => node['postgresql']['config']['port'],
-      :username => 'postgres',
-      :password => node['postgresql']['password']['postgres']
+      host: '127.0.0.1',
+      port: node['postgresql']['config']['port'],
+      username: 'postgres',
+      password: node['postgresql']['password']['postgres']
     }
     postgresql_database db_name do
       connection postgresql_connection_info

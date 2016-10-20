@@ -4,8 +4,6 @@ LineLength:
   Max: 600
 Documentation:
   Enabled: False
-HashSyntax:
-  Enabled: False
 SpaceBeforeFirstArg:
   Enabled: false
 AsciiComments:
